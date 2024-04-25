@@ -1,0 +1,7 @@
+streamlit
+requests
+json
+pandas
+pytz
+os
+plotly
