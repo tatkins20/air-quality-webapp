@@ -24,6 +24,13 @@ def extract_forecast(key, latitude, longitude):
 def transform_response(response):
     data = response['list']
     df = pd.json_normalize(data)
+    
+    # Extract latitude and longitude from 'coord' column
+    df[['lat', 'lon']] = pd.DataFrame(df['coord'].tolist(), index=df.index)
+    
+    # Drop 'coord' column
+    df.drop(columns=['coord'], inplace=True)
+    
     return df
 
 # The App in action
@@ -46,7 +53,7 @@ def main():
 
             # Visualize with Plotly and Mapbox
             st.title('Current Air Pollution Data')
-            fig_current = px.scatter_mapbox(df_current, lat='coord.0', lon='coord.1', hover_name='dt', hover_data=['main.aqi'], 
+            fig_current = px.scatter_mapbox(df_current, lat='lat', lon='lon', hover_name='dt', hover_data=['main.aqi'], 
                                              color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
             fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
             st.plotly_chart(fig_current)
