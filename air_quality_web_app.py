@@ -29,7 +29,7 @@ def main():
             st.write(f'Current AQI:{result["aqi"]}')
             st.write(f'Last Updated:{result["last_updated"]}')
 
-     m = folium.Map(location=[float(result["coord"]["lat"]), float(result["coord"]["lon"])], zoom_start=12)
+            m = folium.Map(location=[float(result["coord"]["lat"]), float(result["coord"]["lon"])], zoom_start=12)
             folium.Marker([float(result["coord"]["lat"]), float(result["coord"]["lon"])], popup="Air Quality Station").add_to(m)
             fig = plt.figure(figsize=(8,6))
             sns.lineplot(x='datetime', y='value', data=result['data'])
