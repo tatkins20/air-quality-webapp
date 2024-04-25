@@ -4,7 +4,6 @@ import json
 import pandas as pd
 import pytz
 import os
-import plotly
 import plotly.express as px
 
 #Extract
