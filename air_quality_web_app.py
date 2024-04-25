@@ -83,7 +83,7 @@ def main():
 
         # Visualize with Plotly and Mapbox
         st.title('Current Air Pollution Data')
-        fig_current = px.scatter_mapbox(df_current, lat='coord.lat', lon='coord.lon', hover_name='dt', hover_data=['main.aqi', 'components'], 
+        fig_current = px.scatter_mapbox(df_current, lat='lat', lon='lon', hover_name='dt', hover_data=['main.aqi', 'components'], 
                                          color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
         fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
         st.plotly_chart(fig_current)
