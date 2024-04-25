@@ -41,7 +41,5 @@ def main():
         else:
             st.write("No results found! Please try again.")
 
-    st.set_page_config(layout="wide")
-
 if __name__ == "__main__":
     main()
