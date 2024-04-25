@@ -24,14 +24,10 @@ def main():
     if search_button:
         result = get_air_data(city)
         if result is not None:
-            st.write(f'City:
-            {result["city"]}')
-            st.write(f'Country:
-            {result["country"]}')
-            st.write(f'Current AQI:
-            {result["aqi"]}')
-            st.write(f'Last Updated:
-            {result["last_updated"]}')
+            st.write(f'City:{result["city"]}')
+            st.write(f'Country:{result["country"]}')
+            st.write(f'Current AQI:{result["aqi"]}')
+            st.write(f'Last Updated:{result["last_updated"]}')
 
      m = folium.Map(location=[float(result["coord"]["lat"]), float(result["coord"]["lon"])], zoom_start=12)
             folium.Marker([float(result["coord"]["lat"]), float(result["coord"]["lon"])], popup="Air Quality Station").add_to(m)
