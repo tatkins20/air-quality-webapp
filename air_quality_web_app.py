@@ -27,7 +27,11 @@ def transform_response(response):
         st.error("No data available")
         return pd.DataFrame()  # Return empty DataFrame if no data
     
-    df = pd.json_normalize(data)
+    try:
+        df = pd.json_normalize(data)
+    except KeyError:
+        st.error("No coordinate information available")
+        return pd.DataFrame()  # Return empty DataFrame if no coordinate information
     
     # Extract latitude and longitude from 'coord' column if available
     if 'coord' in df.columns:
@@ -41,11 +45,11 @@ def transform_response(response):
 
 # The App in action
 def main():
-    st.title("Air Pollution Data Visualization")
+    st.title("Air Quality Data Visualization")
 
     # Input latitude and longitude
-    latitude = st.number_input('Enter Latitude:')
-    longitude = st.number_input('Enter Longitude:')
+    latitude = st.sidebar.number_input('Enter Latitude:')
+    longitude = st.sidebar.number_input('Enter Longitude:')
 
     if latitude and longitude:  # Check if latitude and longitude are provided
         # Process
@@ -59,14 +63,14 @@ def main():
 
             # Visualize with Plotly and Mapbox
             if not df_current.empty:
-                st.title('Current Air Pollution Data')
+                st.subheader('Current Air Pollution Data')
                 fig_current = px.scatter_mapbox(df_current, lat='lat', lon='lon', hover_name='dt', hover_data=['main.aqi'], 
                                                  color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
                 fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
                 st.plotly_chart(fig_current)
 
             if not df_forecast.empty:
-                st.title('Forecasted Air Pollution Data')
+                st.subheader('Forecasted Air Pollution Data')
                 fig_forecast = px.line(df_forecast, x='dt', y='main.aqi', title='Air Quality Index Forecast', labels={'main.aqi': 'Air Quality Index'})
                 st.plotly_chart(fig_forecast)
             
