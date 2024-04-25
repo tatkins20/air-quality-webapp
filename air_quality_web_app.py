@@ -11,7 +11,7 @@ def get_api_key():
     return key
 
 def get_air_data(city):
-    getUrl = f'https://api.openaq.org/v1/latest?city={city}&limit=1'
+    getUrl = f"http://api.openaq.org/v1/latest?city={city}&limit=1"
     response = requests.get(getUrl)
     data = json.loads(response.text)
     return data[0] if len(data) > 0 else None
