@@ -5,6 +5,7 @@ import pandas as pd
 import pytz
 import os
 import plotly.express as px
+
 # Extract
 def get_api_key():
     """
@@ -89,7 +90,7 @@ def main():
 
         # Visualize with Plotly and Mapbox
         st.title('Current Air Pollution Data')
-        fig_current = px.scatter_mapbox(df_current, lat='coord.lat', lon='coord.lon', hover_name='dt', hover_data=['main.aqi', 'components.co', 'components.no', 'components.no2', 'components.o3', 'components.so2', 'components.pm2_5', 'components.pm10', 'components.nh3'], 
+        fig_current = px.scatter_mapbox(df_current, lat='coord[0]', lon='coord[1]', hover_name='dt', hover_data=['main.aqi', 'co', 'no', 'no2', 'o3', 'so2', 'pm2_5', 'pm10', 'nh3'], 
                                          color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
         fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
         st.plotly_chart(fig_current)
