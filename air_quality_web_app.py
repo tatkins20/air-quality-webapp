@@ -22,14 +22,20 @@ def extract_forecast(key, latitude, longitude):
 
 # Transform
 def transform_response(response):
-    data = response['list']
+    data = response.get('list', [])  # Get 'list' key from response, default to empty list if not found
+    if not data:
+        st.error("No data available")
+        return pd.DataFrame()  # Return empty DataFrame if no data
+    
     df = pd.json_normalize(data)
     
-    # Extract latitude and longitude from 'coord' column
-    df[['lat', 'lon']] = pd.DataFrame(df['coord'].tolist(), index=df.index)
-    
-    # Drop 'coord' column
-    df.drop(columns=['coord'], inplace=True)
+    # Extract latitude and longitude from 'coord' column if available
+    if 'coord' in df.columns:
+        df[['lat', 'lon']] = pd.DataFrame(df['coord'].tolist(), index=df.index)
+        df.drop(columns=['coord'], inplace=True)
+    else:
+        st.error("No coordinate information available")
+        return pd.DataFrame()  # Return empty DataFrame if no coordinate information
     
     return df
 
@@ -52,15 +58,17 @@ def main():
             df_forecast = transform_response(response_forecast)
 
             # Visualize with Plotly and Mapbox
-            st.title('Current Air Pollution Data')
-            fig_current = px.scatter_mapbox(df_current, lat='lat', lon='lon', hover_name='dt', hover_data=['main.aqi'], 
-                                             color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
-            fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
-            st.plotly_chart(fig_current)
+            if not df_current.empty:
+                st.title('Current Air Pollution Data')
+                fig_current = px.scatter_mapbox(df_current, lat='lat', lon='lon', hover_name='dt', hover_data=['main.aqi'], 
+                                                 color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
+                fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
+                st.plotly_chart(fig_current)
 
-            st.title('Forecasted Air Pollution Data')
-            fig_forecast = px.line(df_forecast, x='dt', y='main.aqi', title='Air Quality Index Forecast', labels={'main.aqi': 'Air Quality Index'})
-            st.plotly_chart(fig_forecast)
+            if not df_forecast.empty:
+                st.title('Forecasted Air Pollution Data')
+                fig_forecast = px.line(df_forecast, x='dt', y='main.aqi', title='Air Quality Index Forecast', labels={'main.aqi': 'Air Quality Index'})
+                st.plotly_chart(fig_forecast)
             
         except KeyError as e:
             st.error("Error occurred: {}".format(e))
