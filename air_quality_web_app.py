@@ -2,8 +2,6 @@ import streamlit as st
 import requests
 import json
 import pandas as pd
-import pytz
-import os
 import plotly.express as px
 
 # Extract
@@ -48,7 +46,7 @@ def main():
 
             # Visualize with Plotly and Mapbox
             st.title('Current Air Pollution Data')
-            fig_current = px.scatter_mapbox(df_current, lat='coord[0]', lon='coord[1]', hover_name='dt', hover_data=['main.aqi'], 
+            fig_current = px.scatter_mapbox(df_current, lat=df_current['coord[0]'], lon=df_current['coord[1]'], hover_name='dt', hover_data=['main.aqi'], 
                                              color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
             fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
             st.plotly_chart(fig_current)
@@ -64,4 +62,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
