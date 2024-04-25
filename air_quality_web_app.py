@@ -5,7 +5,6 @@ import pandas as pd
 import pytz
 import os
 import plotly.express as px
-
 # Extract
 def get_api_key():
     """
@@ -63,7 +62,14 @@ def transform_response(response):
     """
     data = response['list']
     df = pd.json_normalize(data)
-    return df
+
+    # Extract components data
+    components_df = pd.json_normalize(df['components'].apply(lambda x: json.loads(json.dumps(x))))
+
+    # Combine main data with components data
+    df_combined = pd.concat([df.drop('components', axis=1), components_df], axis=1)
+
+    return df_combined
 
 # The App in action
 def main():
@@ -83,7 +89,7 @@ def main():
 
         # Visualize with Plotly and Mapbox
         st.title('Current Air Pollution Data')
-        fig_current = px.scatter_mapbox(df_current, lat=latitude, lon=longitude, hover_name='dt', hover_data=['main.aqi', 'components'], 
+        fig_current = px.scatter_mapbox(df_current, lat='coord.lat', lon='coord.lon', hover_name='dt', hover_data=['main.aqi', 'components.co', 'components.no', 'components.no2', 'components.o3', 'components.so2', 'components.pm2_5', 'components.pm10', 'components.nh3'], 
                                          color='main.aqi', color_continuous_scale=px.colors.cyclical.IceFire, size='main.aqi', size_max=15, zoom=10)
         fig_current.update_layout(mapbox_style='open-street-map', mapbox_accesstoken=mapboxkey)
         st.plotly_chart(fig_current)
