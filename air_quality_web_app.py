@@ -24,7 +24,7 @@ def extract_forecast(key, latitude, longitude):
 
 #Transform
 def transform_response(response):
-    data = response['list']
+    data = response
     df = pd.DataFrame(data)
     df['dt'] = pd.to_datetime(df['dt'], unit='s')
     df['dt'] = df['dt'].dt.tz_localize('UTC').dt.tz_convert('US/Eastern') # Convert time to Eastern Time Zone
