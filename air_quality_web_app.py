@@ -12,12 +12,12 @@ def get_api_key():
     mapboxkey = st.secrets['mapboxkey']
     return(key,mapboxkey)
 
-def extract_current():
+def extract_current(key, latitude, longitude):
     getUrl='http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API key}'
     response = requests.request("GET", getUrl, params={"appid": key})
     return(json.loads(response.content.decode('utf-8')))
 
-def extract_forecast():
+def extract_forecast(key, latitude, longitude):
     getUrl='http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat={lat}&lon={lon}&appid={API key}'
     response = requests.request("GET", getUrl, params={"appid": key})
     return(json.loads(response.content.decode('utf-8')))
