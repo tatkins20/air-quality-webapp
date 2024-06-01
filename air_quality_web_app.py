@@ -1,3 +1,5 @@
+
+!pip install streamlit requests pandas plotly
 import streamlit as st
 import requests
 import json
