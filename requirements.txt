@@ -3,3 +3,4 @@ requests
 matplotlib
 seaborn
 folium
+plotly
