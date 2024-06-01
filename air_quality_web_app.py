@@ -9,7 +9,7 @@ import plotly.express as px
 # Extract
 def get_api_key():
     key = os.environ.get('OPENWEATHER_API_KEY')
-    if key is None or mapbox_key is None:
+    if key is None:
         st.error("Please set the OPENWEATHER_API_KEY and MAPBOX_API_KEY environment variables.")
         st.stop()
     return key
