@@ -51,7 +51,7 @@ if not df_current.empty and not df_forecast.empty:
 
     fig_current = px.scatter_mapbox(df_current, lat='latitude', lon='longitude', color='main.aqi', size='main.aqi',
                                     color_continuous_scale='viridis', size_max=15, zoom=10,
-                                    mapbox_style="carto-positron",
+                                    mapbox_style="open-street-map",
                                     mapbox_accesstoken=mapbox_key)
     st.plotly_chart(fig_current, use_container_width=True)
 
