@@ -9,11 +9,10 @@ import plotly.express as px
 # Extract
 def get_api_key():
     key = os.environ.get('OPENWEATHER_API_KEY')
-    mapbox_key = os.environ.get('MAPBOX_API_KEY')
     if key is None or mapbox_key is None:
         st.error("Please set the OPENWEATHER_API_KEY and MAPBOX_API_KEY environment variables.")
         st.stop()
-    return key, mapbox_key
+    return key
 
 def extract_current(latitude, longitude, api_key):
     url = f'https://api.openweathermap.org/data/2.5/air_pollution?lat={latitude}&lon={longitude}&appid={api_key}'
@@ -34,7 +33,7 @@ def transform_response(response):
     return df
 
 # Process
-key, mapbox_key = get_api_key()
+key = get_api_key()
 latitude = st.text_input('Enter latitude:', value='40.7128')
 longitude = st.text_input('Enter longitude:', value='-74.0060')
 
@@ -51,8 +50,7 @@ if not df_current.empty and not df_forecast.empty:
 
     fig_current = px.scatter_mapbox(df_current, lat='latitude', lon='longitude', color='main.aqi', size='main.aqi',
                                     color_continuous_scale='viridis', size_max=15, zoom=10,
-                                    mapbox_style="open-street-map",
-                                    mapbox_accesstoken=mapbox_key)
+                                    mapbox_style="open-street-map")
     st.plotly_chart(fig_current, use_container_width=True)
 
     st.header('Air Pollution Forecast')
