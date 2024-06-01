@@ -2,60 +2,64 @@ import streamlit as st
 import requests
 import json
 import pandas as pd
+import pytz
+import os
 import plotly.express as px
 
 # Extract
 def get_api_key():
-    key = st.secrets['appid']
-    mapboxkey = st.secrets['mapboxkey']
-    return key, mapboxkey
+    key = os.environ.get('OPENWEATHER_API_KEY')
+    mapbox_key = os.environ.get('MAPBOX_API_KEY')
+    if key is None or mapbox_key is None:
+        st.error("Please set the OPENWEATHER_API_KEY and MAPBOX_API_KEY environment variables.")
+        st.stop()
+    return key, mapbox_key
 
-def extract_current(lat, lon, key):
-    url = f'https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}'
-    response = requests.get(url, params={"appid": key})
+def extract_current(latitude, longitude, api_key):
+    url = f'https://api.openweathermap.org/data/2.5/air_pollution?lat={latitude}&lon={longitude}&appid={api_key}'
+    response = requests.get(url)
     return response.json()
 
-def extract_forecast(lat, lon, key):
-    url = f'https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat={lat}&lon={lon}'
-    response = requests.get(url, params={"appid": key})
+def extract_forecast(latitude, longitude, api_key):
+    url = f'https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat={latitude}&lon={longitude}&appid={api_key}'
+    response = requests.get(url)
     return response.json()
 
 # Transform
 def transform_response(response):
-    data = response['list']
-    df = pd.json_normalize(data, sep='_')
+    df = pd.json_normalize(response['list'])
+    df['dt'] = pd.to_datetime(df['dt'], unit='s')
+    df['main.aqi'] = df['main.aqi'].astype(int)
+    df = df[['dt', 'main.aqi']]
     return df
 
-# The App in action: Run custom functions if valid inputs are entered
-st.title("Air Pollution Data Viewer")
+# Process
+key, mapbox_key = get_api_key()
+latitude = st.text_input('Enter latitude:', value='40.7128')
+longitude = st.text_input('Enter longitude:', value='-74.0060')
 
-# User input for location
-lat = st.number_input("Enter Latitude", value=0.0)
-lon = st.number_input("Enter Longitude", value=0.0)
+response_current = extract_current(latitude, longitude, key)
+response_forecast = extract_forecast(latitude, longitude, key)
 
-if st.button("Get Data"):
-    key, mapboxkey = get_api_key()
-    response_current = extract_current(lat, lon, key)
-    response_forecast = extract_forecast(lat, lon, key)
-    
-    if 'list' in response_current and 'list' in response_forecast:
-        df_current = transform_response(response_current)
-        df_forecast = transform_response(response_forecast)
-        
-        # Visualize with Plotly and Mapbox
-        st.subheader("Current Air Pollution Data")
-        fig_current = px.scatter_mapbox(
-            df_current, lat=lat, lon=lon, size='main_aqi',
-            color='main_aqi', hover_data=['components_co', 'components_no', 'components_no2', 'components_o3', 'components_so2', 'components_pm2_5', 'components_pm10'],
-            zoom=10, height=300)
-        fig_current.update_layout(mapbox_style="open-street-map", mapbox_accesstoken=mapboxkey)
-        st.plotly_chart(fig_current)
-        
-        st.subheader("Forecast Air Pollution Data")
-        df_forecast['dt'] = pd.to_datetime(df_forecast['dt'], unit='s')
-        fig_forecast = px.line(
-            df_forecast, x='dt', y=['main_aqi', 'components_co', 'components_no', 'components_no2', 'components_o3', 'components_so2', 'components_pm2_5', 'components_pm10'],
-            labels={'value': 'Concentration', 'variable': 'Pollutant'})
-        st.plotly_chart(fig_forecast)
-    else:
-        st.error("Failed to retrieve data. Please check the inputs and try again.")
+df_current = transform_response(response_current)
+df_forecast = transform_response(response_forecast)
+
+# Visualize with Plotly and Mapbox
+if not df_current.empty and not df_forecast.empty:
+    st.header('Current Air Pollution Data')
+    st.write(df_current)
+
+    fig_current = px.scatter_mapbox(df_current, lat='latitude', lon='longitude', color='main.aqi', size='main.aqi',
+                                    color_continuous_scale='viridis', size_max=15, zoom=10,
+                                    mapbox_style="carto-positron",
+                                    mapbox_accesstoken=mapbox_key)
+    st.plotly_chart(fig_current, use_container_width=True)
+
+    st.header('Air Pollution Forecast')
+    st.write(df_forecast)
+
+    fig_forecast = px.line(df_forecast, x='dt', y='main.aqi', color='main.aqi', labels={'main.aqi': 'AQI'},
+                           title='Air Pollution Forecast')
+    st.plotly_chart(fig_forecast, use_container_width=True)
+else:
+    st.error('No data available. Please check your inputs and API keys.')
