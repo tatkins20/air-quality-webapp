@@ -22,7 +22,7 @@ Activate the virtual environment:\
 Windows: env\Scripts\activate\
 MacOS/Linux: source env/bin/activate\
 Install the required packages: pip install -r requirements.txt\
-Obtain an API key from OpenWeatherMap (https://openweathermap.org/api) and a Mapbox access token (https://account.mapbox.com/access-tokens).\
+Obtain an API key from [OpenWeatherMap](https://openweathermap.org/api) and a [Mapbox access token](https://account.mapbox.com/access-tokens).\
 Create a file named .streamlit/secrets.toml in the root directory of the project and add the following lines:\
 appid = "your_openweathermap_api_key"\
 mapboxkey = "your_mapbox_access_token"\
